@@ -10,7 +10,7 @@ const Login = () => {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-  const { signIn } = useContext(AuthContext);
+  const { signIn, setLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -33,6 +33,9 @@ const Login = () => {
       .catch((err) => {
         console.log(err);
         setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
   return (
