@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Button, Form } from "react-bootstrap";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthProvider/AuthProvider";
 
@@ -24,6 +25,14 @@ const Register = () => {
         setError("");
         handleUpdateUserProfile(name, photoURL);
         handleEmailVerification();
+        toast("Please check your email to verify! Can be in spam folder", {
+          icon: "👏",
+          style: {
+            borderRadius: "10px",
+            background: "#333",
+            color: "#fff",
+          },
+        });
       })
       .catch((err) => {
         console.log(err);
