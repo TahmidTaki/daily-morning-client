@@ -1,44 +1,70 @@
-import React, { createContext, useEffect, useState } from 'react';
-import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth'
-import app from '../../firebase/firebase.config'
+import React, { createContext, useEffect, useState } from "react";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+} from "firebase/auth";
+import app from "../../firebase/firebase.config";
 
 export const AuthContext = createContext();
 const auth = getAuth(app);
 const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-        });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
 
-        return () => unsubscribe();
+    return () => unsubscribe();
+  }, []);
 
-    }, []);
+  const createUser = (email, password) => {
+    setLoading(true);
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
 
-    const createUser = (email, password) => {
-        return createUserWithEmailAndPassword(auth, email, password);
-    }
+  const signIn = (email, password) => {
+    setLoading(true);
+    return signInWithEmailAndPassword(auth, email, password);
+  };
 
-    const signIn = (email, password) => {
-        return signInWithEmailAndPassword(auth, email, password)
-    }
+  const providerLogin = (provider) => {
+    setLoading(true);
+    return signInWithPopup(auth, provider);
+  };
 
-    const providerLogin = (provider) => {
-        return signInWithPopup(auth, provider)
-    }
+  const updateUserProfile = (profile) => {
+    return updateProfile(auth.currentUser, profile);
+  };
 
-    const logOut = () => {
-        return signOut(auth);
-    }
-    const AuthInfo = { user, logOut, providerLogin, createUser, signIn };
-    return (
-        <AuthContext.Provider value={AuthInfo}>
-            {children}
-        </AuthContext.Provider>
-
-
-    );
+  const verifyEmail = () => {
+    return sendEmailVerification(auth.currentUser);
+  };
+  const logOut = () => {
+    setLoading(true);
+    return signOut(auth);
+  };
+  const AuthInfo = {
+    loading,
+    user,
+    updateUserProfile,
+    logOut,
+    providerLogin,
+    createUser,
+    signIn,
+    verifyEmail,
+  };
+  return (
+    <AuthContext.Provider value={AuthInfo}>{children}</AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;
